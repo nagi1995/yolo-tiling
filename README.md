@@ -1,7 +1,12 @@
 # Improved YOLO Dataset tiling script
 
 ## Added several improvements to [nagi1995](https://github.com/nagi1995/yolo-tiling)
-Including: directory-level tiling, creation of Images and Labels directories, user choice to keep tiled files in one directory (useful for YOLOv1-YOLOv4) or seperating JPG and TXT files into separate directories (useful for YOLOv5, YOLOX, YOLOR, YOLOv7, etc.). 
+Added directory-level tiling<br /> 
+Added creation of Images and Labels directories <br />
+Added user choice to keep tiled files in one directory (useful for YOLOv1-YOLOv4)<br />
+Added user choice to separate JPG and TXT files into Image & Label directories (useful for YOLOv5, YOLOX, YOLOR, YOLOv7, etc.)<br />
+Added progress bars<br />
+
   
 
 Users should have an annotated dataset. If the annotated object of interest is very small compared to the parent image, image tiling is recommended. 
