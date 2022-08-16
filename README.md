@@ -1,6 +1,19 @@
-# YOLO Dataset tiling script
+# Improved YOLO Dataset tiling script
 
-## Tile (slice) YOLO Dataset for Small Objects Detection
+## Added several improvements to [nagi1995](https://github.com/nagi1995/yolo-tiling)
+Including: directory-level tiling, creation of Images and Labels directories, user choice to keep tiled files in one directory (useful for YOLOv1-YOLOv4) or seperating JPG and TXT files into separate directories (useful for YOLOv5, YOLOX, YOLOR, YOLOv7, etc.). 
+  
+
+Users should have an annotated dataset. If the annotated object of interest is very small compared to the parent image, image tiling is recommended. 
+Users are encouraged to chage the directory structures featured in the code to fit their personal systems, however the script will create the necessary directories to successfuly run.
+
+Recommended approach: Place untiled images with their annotations into a folder called Input. The contents will be tiled and placed in a folder named Images. From there the user is given the choice to move the .TXT files into a seperate folder named Labels. 
+
+The python script can be run in terminal or in an IDE (PyCharm works great!). 
+
+## Recommended Annotation Services: [Roboflow](https://roboflow.com/), [LabelImg](https://github.com/heartexlabs/labelImg)
+
+
 ## Image [source](https://github.com/VisDrone/VisDrone-Dataset)
 ## Annotations should be in yolo format
 ## In [old version](https://github.com/slanj/yolo-tiling) version of source code, if the image is of dimensions 1360 x 765, and tile size is 512, then 1024 x 512 image is only tiled and remaining is lost
