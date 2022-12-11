@@ -10,7 +10,7 @@
 
 A python script that tiles (slices) images to a desired dimensions. Here is a screenshot of sample result using `tile_yolo.py`.
 
-![image](https://i.imgur.com/OaR6G8N.png)
+![image](https://i.imgur.com/gmcYj8b.png)
 
 *If you're interested in knowing something for small object detection check out [this gist](https://github.com/obss/sahi).*
 
