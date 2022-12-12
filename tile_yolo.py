@@ -3,9 +3,9 @@
 
 
 '''
-@ Co-authored by David Schmitt (https://github.com/David-Schmitt)
 @ Co-authored by Emerson de Lemmus (https://github.com/emersondelemmus)
-@ Purpose: YOLOv1 - YOLOv7 image tiler.
+@ Co-authored by David Schmitt (https://github.com/David-Schmitt)
+@ Purpose: YOLOv1 - YOLOv7 image tiling (slice).
 @ Notes: Added directory-level tiling
          Added empty 'null' tile saving along with annotated tiles
          Added creation of Images and Labels directory
