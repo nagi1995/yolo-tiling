@@ -1,13 +1,42 @@
-# Reference: https://github.com/slanj/yolo-tiling/blob/main/tile_yolo.py
+# Primary Reference: https://github.com/slanj/yolo-tiling/blob/main/tile_yolo.py
+# Secondary Reference: https://github.com/nagi1995/yolo-tiling/tile_yolo.py
+
+
+'''
+@ Co-authored by Emerson de Lemmus (https://github.com/emersondelemmus)
+@ Co-authored by David Schmitt (https://github.com/David-Schmitt)
+@ Purpose: YOLOv1 - YOLOv7 image tiling (slice).
+@ Notes: Added directory-level tiling
+         Added empty 'null' tile saving along with annotated tiles
+         Added creation of Images and Labels directory
+         Added user choice to keep tiled files in one directory
+            Useful for YOLOv1 - YOLOv4:
+                ../datasets/images/im0.jpg  # image
+                ../datasets/images/im0.txt  # label
+         Added user choice to separate files into separate directories
+            Useful for YOLOv5, YOLOR, YOLOX, YOLOv7, PP-YOLO, etc.:
+                ../datasets/images/im0.jpg  # image
+                ../datasets/labels/im0.txt  # label
+         Added progress bars via tqdm
+
+'''
 
 import pandas as pd
+import numpy as np
+from time import sleep
+from tqdm import tqdm, trange
 from shapely.geometry import Polygon
 import cv2
 import math
+import os
+import shutil
+import glob
 
 
 def tiler(imnames, newpath, falsepath, slice_size, ext):
-    for imname in imnames:
+    print('Tiling...')
+    for imname in tqdm(imnames):
+        sleep(0.000001)
         im = cv2.imread(imname)
         height, width, _ = im.shape
         h_new = math.ceil(height/slice_size) * slice_size
@@ -31,8 +60,7 @@ def tiler(imnames, newpath, falsepath, slice_size, ext):
 
             boxes.append((int(row[1]['class']), Polygon([(x1, y1), (x2, y1), (x2, y2), (x1, y2)])))
         
-        
-        #print('Image:', imname)
+
         # create tiles and find intersection with bounding boxes for each tile
         for i in range((h_new // slice_size)):
             for j in range((w_new // slice_size)):
@@ -54,10 +82,8 @@ def tiler(imnames, newpath, falsepath, slice_size, ext):
                             
                             filename = imname.split('/')[-1]
                             slice_path = newpath + "/" + filename.replace(ext, f'_{i}_{j}{ext}')                            
-                            slice_labels_path = newpath + "/" + filename.replace(ext, f'_{i}_{j}.txt')                            
-                            #print(slice_path)
+                            slice_labels_path = newpath + "/" + filename.replace(ext, f'_{i}_{j}.txt')
                             cv2.imwrite(slice_path, sliced_im)
-                            # sliced_im.save(slice_path)
                             imsaved = True                    
                         
                         # get smallest rectangular polygon (with sides parallel to the coordinate axes) that contains the intersection
@@ -91,30 +117,88 @@ def tiler(imnames, newpath, falsepath, slice_size, ext):
                     sliced_im = im[i*slice_size:(i+1)*slice_size, j*slice_size:(j+1)*slice_size]
                     
                     filename = imname.split('/')[-1]
-                    slice_path = falsepath + "/" + filename.replace(ext, f'_{i}_{j}{ext}')                
+                    slice_path = falsepath + "/" + filename.replace(ext, f'_{i}_{j}{ext}')
+                    cv2.imwrite(slice_path, sliced_im)
+                    with open(slice_path.replace(ext, '.txt'), "w") as outfile:
+                        outfile.write("")
 
-                    sliced_im.save(slice_path)
-                    #print('Slice without boxes saved')
                     imsaved = True
     
-    print("tiling successfully completed")
+    print("\nTiling successfully completed!\n")
 
+
+def separate_images_and_text():
+
+    src_folder = r'./images'
+    dst_folder = r'./labels/'
+    text_ext = '.txt'
+
+    # Create directory if path exists
+    isExist = os.path.exists(dst_folder)
+    if not isExist:
+        os.makedirs(dst_folder)
+        print('Created new folder: Labels')
+
+    # search for all files with .txt extension in source directory
+    pattern = '/*' + text_ext
+    files = glob.glob(src_folder + pattern)
+
+    # move the files with txt extension
+    print("\nMoving annotation text files...")
+    for file in tqdm(files):
+        sleep(0.000001)
+        # extract file name from file path
+        file_name = os.path.basename(file)
+        shutil.move(file, dst_folder)
+
+    print('Tiled annotation files moved successfully!')
 
 #%%
 
-
 if __name__ == "__main__":
-    
+
     # give the file extension below
     ext = ".jpg"
-    
+
     # given the path to save tiled images
-    newpath = "./"
-    
-    # paths of original images to be tiled
-    imnames = ["./you_image_name1.extension", "./you_image_name2.extension", "./you_image_name3.extension"]
-    falsefolder = None
+    newpath = "./images"
+
+    # Create directory if path exists
+    isExist = os.path.exists(newpath)
+    if not isExist:
+        os.makedirs(newpath)
+        print('\nCreated new folder: Images\n')
+
+    # path to images source directory
+    directory_name = './input'
+
+    # Create directory if path exists
+    isExist = os.path.exists(directory_name)
+    if not isExist:
+        os.makedirs(directory_name)
+        print('Created new folder: Input')
+
+    # paths of images to be tiled, leave empty
+    imnames = []
+
+    for filename in os.listdir(directory_name):
+        f = os.path.join(directory_name + "/", filename)
+        if os.path.isfile(f) and os.path.splitext(filename)[-1] == ext:
+            imnames.append(f)
+
+    # directory where non-annotated tiles are stored
+    falsefolder = "./images"
+
     # dimensions of the tiled image
-    size = 512
+    size = 640
+
+    # Tile Definition Call
     tiler(imnames, newpath, falsefolder, size, ext)
-    
+
+    YesOrNo = input('\nSeparate .JPG and .TXT files? (Recommended for YOLOv5 or newer): Y/N: ')
+
+    if YesOrNo == 'Y' or YesOrNo == 'y':
+        # Separate Images and Text, meant for YOLOv5 onwards
+        separate_images_and_text()
+    else:
+        print('\n\nExiting..')
